@@ -14,8 +14,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+from accounts.api import views
 
+
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'api/users', views.UserViewSet, basename="user")
+router.register(r'api/groups', views.GroupViewSet, basename='group')
+
+# The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    #@ https://www.django-rest-framework.org/tutorial/quickstart/
+    path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
