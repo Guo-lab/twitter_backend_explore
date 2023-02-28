@@ -62,4 +62,11 @@ Fast-forward
 # Superserver
 
 1. `python manage.py createsuperuser`
-2.
+2. `python manage.py startapp accounts` 新建一个 service, 以后后台可通过 IP:PORT/admin 访问到
+3. 需要安装新的库 `pip install djangorestframework`
+4. 以下：[Home - Django REST framework Official Document](https://www.django-rest-framework.org/)
+   <br>
+   - settings.py:   FRAMEWORK设定了翻页配置，
+   - urls.py:       路由
+   - views.py:      规定了视图，也有检测的作用
+   - serializer.py: 数据渲染(组织)的方式, 比如返回什么样的数据
