@@ -41,11 +41,36 @@ url.py 的补充, api/view 的实现(包括views, serializers 每一个不同的
 
 ### Create: 保证 APIClient 能够 post 成功
 
+<br>
+
 个人理解:
 
 - Model 创建好之后，migrations 会将其“实例化”，（在实际最终test过程中，会先测试api在测试model）
 - 选取具备 actions 的 ViewSet 可以分步创建序列器， 这样更好地进行对数据的检验截取，并且可以达到不同的渲染效果 (针对不同的数据库操作，首先完成 create action)
+- <br>
+  <br>
 
-### Update/Destroy: 使得 APIClient
+### Update / Destroy / List: 使得 APIClient
 
-更新删除帖子，需要自己设计权限
+<br>更新删除帖子，需要自己设计权限
+
+每次 self.get_object() 以实例进行更新
+
+至于 list， 可以安装 django_filters [Filtering - Django REST framework . django-rest-framework.org](https://www.django-rest-framework.org/api-guide/filtering/#djangofilterbackend) 应用在 ViewSet 中
+
+
+> 交互  <br>
+>
+> - 选择1:  `python manage.py shell`.
+>
+>   ```
+>   from comments.model import Comment
+>   Comment.objects.all()
+>   print(Comment.objects.all().query())
+>   ```
+> - 选择2: logging [python字符串对齐](https://zhuanlan.zhihu.com/p/51436239) and [Logging raw SQL to the console in Django](https://www.neilwithdata.com/django-sql-logging)
+>
+>   Logging 在 settings.py 的 local 配置 (try, except)
+>   通过看到 logging 可以进行除cache策略以外的数据库层的优化比如
+> - - `self.filter_queryset(queryset).prefetch_related('user').order_by('created_at')` or
+> - - `self.filter_queryset(queryset).select_related('user').order_by('created_at')` (JOIN) 多数据库存书可能失效
