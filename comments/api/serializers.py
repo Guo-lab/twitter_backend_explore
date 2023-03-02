@@ -6,6 +6,9 @@ from comments.models import Comment
 from django.contrib.auth.models import User
 
 
+
+
+
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer() # Json instead of id
     class Meta:
@@ -32,3 +35,16 @@ class CommentSerializerForCreate(serializers.ModelSerializer):
             content=validated_data['content'], 
             type   =validated_data['type'],
         )
+      
+        
+# 因为不可以让用户接触到其他的更新内容如id，因此功能性 解耦合相当重要
+class CommentSerializerForUpdate(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['content',]
+
+    def update(self, instance, validated_data):
+        # 从 request 获取的数据只更新 content 的部分
+        instance.content = validated_data['content']
+        instance.save()
+        return instance
