@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     #==== Version-Update ==== Third party
     'rest_framework',
+    'django_filters', 
     #---- Version-Update ---- Components
     'comments',
 ]
@@ -48,7 +49,11 @@ INSTALLED_APPS = [
 #==== Version-Update ====
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE':                7,   
+    'PAGE_SIZE'               : 7, 
+    #---------------------------------- 
+    #---- 可以和 django_filters 联动 ----
+    #----------------------------------
+    'DEFAULT_FILTER_BACKENDS' : ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 
@@ -87,7 +92,7 @@ WSGI_APPLICATION = 'twitter.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 
-#################### Version-Update ################3
+#################### Version-Update #################
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
@@ -143,3 +148,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+
+
+
+#################### Version-Update #################
+# checkout https://www.neilwithdata.com/django-sql-logging
+try:
+    from .local_config import *
+except:
+    pass

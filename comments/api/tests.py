@@ -50,7 +50,7 @@ class CommentAPITests(TestCase):
             {'content': '1' * 105}
         )
         self.assertEqual(response.status_code, 400)
-        print("*********** Content limitation is verified! ***********")
+        print(".[{0:30}]: {2:5}{1:10}".format("* Comment Content Limitation",  "Verified", ""))
         
         # region====================================
         # ============= Valid Input ================
@@ -76,7 +76,7 @@ class CommentAPITests(TestCase):
         self.assertEqual(response.data['content'], 'abcdefg')
         # ===========================================
         # endregion==================================
-        print('*********** Two comment-created cases pass! ***********')
+        print(".[{0:30}]: {2:5}{1:10}".format('* Comment Created Cases', 'Verified', ""))
         
     def test_destroy(self):
         content = 'content to be deleted'
@@ -96,7 +96,7 @@ class CommentAPITests(TestCase):
         response = self.default_cli.delete(_delete)
         self.assertEqual(response.status_code, 200) 
         self.assertEqual(Comment.objects.count(), client_comment_cnt - 1) 
-        print("\n********** Three comment-deleted cases pass! **********")
+        print("[{0:30}]: {2:5}{1:10}".format("* Comment Deleted Cases", "Verified", ""))
         
     def test_update(self):
         content = 'content to be updated'
@@ -125,6 +125,36 @@ class CommentAPITests(TestCase):
         comment.refresh_from_db()
         self.assertEqual(comment.created_at, prev_created_time)
         self.assertNotEqual(comment.updated_at, prev_updated_time)
-        print("\n********** Three comment-updated cases pass! **********")
+        print("[{0:30}]: {2:5}{1:10}".format("* Comment Updated Cases", "Verified", ""))
         
         
+    def test_list(self):
+        # Case one: No user_id
+        response = self.anonynous_cli.get(COMMENT_URL) 
+        self.assertEqual(response.status_code, 400) 
+        
+        # Case two: Init Anony without comment 
+        self.a_third_user = self.create_user('GSQ')
+        response = self.anonynous_cli.get(COMMENT_URL, {'user_id': self.a_third_user.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['comments']), 0)
+        # print("\n" + str(len(
+        #     self.anonynous_cli.get(
+        #         COMMENT_URL, 
+        #         {'user_id': self.default_user.id},
+        #     ).data['comments']
+        # ))) 
+        # comments cnt = 0
+        #//print(self.default_user.id, " ", self.a_third_user.id)
+        
+        # Case three: multi users create comments
+        # 测试逻辑比带有不同 Twitter 帖子 的简单很多，否则可以在同一帖子下统计不同人发帖子数量
+        Comment.objects.create(user=self.default_user, content='2')        
+        Comment.objects.create(user=self.a_third_user, content='1')   
+        Comment.objects.create(user=self.a_third_user, content='3')        
+        response = self.anonynous_cli.get(COMMENT_URL, {'user_id': self.a_third_user.id})
+        #//print(response.data)
+        self.assertEqual(response.data['comments'][0]['content'], '1')
+        self.assertEqual(response.data['comments'][1]['content'], '3')
+        self.assertEqual(len(response.data['comments']), 2)
+        print("[{0:30}]: {2:5}{1:10}".format("* Comment Listed Cases", "Verified", ""))

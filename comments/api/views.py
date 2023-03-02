@@ -10,6 +10,7 @@ from comments.api import serializers
 from comments.api.permissions import IsOwner
 
 
+
 # =========================================================================
 # https://www.django-rest-framework.org/api-guide/viewsets/#genericviewset ---- ! Special ---- No actions 没有实现好 GET 等功能 用 ModelViewSet 提前可视化
 # =========================================================================
@@ -21,6 +22,9 @@ class CommentViewSet(viewsets.ModelViewSet): # class CommentViewSet(viewsets.Gen
     serializer_class   = serializers.CommentSerializerForCreate # before request.data
     # ---- self.get_object() -----
     queryset           = models.Comment.objects.all()
+    
+    # ---------- filter ----------
+    filterset_fields = ('user_id', ) # 多个筛选
     
     # ---- permission_classes ----
     def get_permissions(self):
@@ -71,6 +75,7 @@ class CommentViewSet(viewsets.ModelViewSet): # class CommentViewSet(viewsets.Gen
             status=status.HTTP_201_CREATED,
         )
     
+    
     # -------- Update comments ---------
     def update(self, request, *args, **kwargs):
         """ 
@@ -95,6 +100,7 @@ class CommentViewSet(viewsets.ModelViewSet): # class CommentViewSet(viewsets.Gen
             status=status.HTTP_200_OK,
         )
         
+        
     # ---- Delete comments ----- 重写
     def destroy(self, request, *args, **kwargs):
         comment = self.get_object() #! self
@@ -102,4 +108,32 @@ class CommentViewSet(viewsets.ModelViewSet): # class CommentViewSet(viewsets.Gen
         return response.Response( 
             {'success' : True}, 
             status=status.HTTP_200_OK, # default return from destroy = HTTP 204 No Content
+        )
+    
+    
+    
+    # ----- List comments ----- list 完成后，全局展示在哪里
+    def list(self, request, *args, **kwargs):
+        if 'user_id' not in request.query_params: # "/api/comments/?user_id=1" [Same Q & A]: id ?-> user_id
+            return response.Response(
+                {
+                    'message' : 'missing user_id in request',
+                    'success' : False,  
+                },
+                status = status.HTTP_400_BAD_REQUEST
+            )
+        # Filtering Way 1
+        user_id_   = request.query_params['user_id']
+        comments_1 = models.Comment.objects.filter(user_id = user_id_)
+        # Filtering Way 2
+        queryset   = self.get_queryset()
+        # according to filterset_fields
+        comments_2 = self.filter_queryset(queryset).order_by('created_at')
+        
+        serializer = serializers.CommentSerializer(comments_2, many=True) # many return a list 但是response中更希望是 json hash
+        return response.Response(
+            {
+                'comments' : serializer.data,
+            },
+            status = status.HTTP_200_OK
         )
