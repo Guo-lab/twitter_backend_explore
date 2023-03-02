@@ -70,3 +70,5 @@ Fast-forward
    - urls.py:       路由
    - views.py:      规定了视图，也有检测的作用
    - serializer.py: 数据渲染(组织)的方式, 比如返回什么样的数据
+
+
