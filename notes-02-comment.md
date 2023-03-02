@@ -37,7 +37,15 @@ url.py 的补充, api/view 的实现(包括views, serializers 每一个不同的
 
 `python manage.py test comments`
 
-
 <br>
 
-# S
+### Create: 保证 APIClient 能够 post 成功
+
+个人理解:
+
+- Model 创建好之后，migrations 会将其“实例化”，（在实际最终test过程中，会先测试api在测试model）
+- 选取具备 actions 的 ViewSet 可以分步创建序列器， 这样更好地进行对数据的检验截取，并且可以达到不同的渲染效果 (针对不同的数据库操作，首先完成 create action)
+
+### Update/Destroy: 使得 APIClient
+
+更新删除帖子，需要自己设计权限
