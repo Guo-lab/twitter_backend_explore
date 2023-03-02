@@ -16,19 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from accounts.api import views
-
+ 
+from accounts.api.views import UserViewSet, GroupViewSet
+from comments.api.views import CommentViewSet
+ 
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'api/users', views.UserViewSet, basename="user")
-router.register(r'api/groups', views.GroupViewSet, basename='group')
+router.register(r'api/users',  UserViewSet,  basename="user")
+router.register(r'api/groups', GroupViewSet, basename='group')
+
+router.register(r'api/comments', CommentViewSet, basename='comments')
+
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     #@ https://www.django-rest-framework.org/tutorial/quickstart/
-    path('', include(router.urls)),
+    path('',          include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    
 ]
